@@ -8,8 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -26,7 +29,7 @@ public class TaskController {
     }
 
     @PostMapping("/tasks")
-    public ResponseEntity<Object> createTask(TaskRequest request){
+    public ResponseEntity<Object> createTask(@Valid @RequestBody TaskRequest request){
         log.info("Request to [CREATE] service with details: {}", request);
         return ResponseEntity.ok().body(this.taskManager.create(request));
     }

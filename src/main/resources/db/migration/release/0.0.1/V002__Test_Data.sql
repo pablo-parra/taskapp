@@ -1,2 +1,5 @@
-INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userId)
-VALUES (1, 'test title', 'test description', '2020-10-16 11:22:33', null, false, null, 1);
+INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userId) VALUES (1, 'some task 1', 'test description 1', '2020-10-03 13:22:33', '2020-10-05 13:22:33', true, '2020-10-05 11:22:33', 1);
+INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userId) VALUES (2, 'some task 2', 'test description 2', '2020-10-14 14:22:33', null, true, '2020-10-15 11:22:33', 1);
+INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userId) VALUES (3, 'some task 3', 'test description 3', '2020-10-15 15:22:33', '2020-10-15 15:22:33', false, null, 1);
+INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userId) VALUES (4, 'some task 4', 'test description 4', '2020-10-16 16:22:33', null, false, null, 1);
+INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userId) VALUES (5, 'some task 5', 'test description 5', '2020-10-17 17:22:33', '2020-10-17 17:22:33', false, null, 1);
