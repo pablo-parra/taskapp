@@ -1,5 +1,6 @@
 package com.example.taskapp.taskmanagement.logic.impl;
 
+import com.example.taskapp.common.exception.BadRequestException;
 import com.example.taskapp.common.mapper.Mapper;
 import com.example.taskapp.taskmanagement.dataaccess.dto.SearchCriteria;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskRequest;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementation for the {@TaskManager} interface
@@ -43,8 +45,10 @@ public class TaskManagerImpl implements TaskManager {
      * {@inheritDoc}
      */
     @Override
-    public TaskTO getTask(String id) {
-        return null;
+    public TaskTO getTask(long id) {
+        log.info("Getting details of task {}", id);
+        Optional<Task> task = this.taskRepository.findById(id);
+        return task.isPresent() ? this.mapper.map(task.get(), TaskTO.class) : new TaskTO();
     }
 
     /**
@@ -68,15 +72,30 @@ public class TaskManagerImpl implements TaskManager {
      * {@inheritDoc}
      */
     @Override
-    public TaskTO update(String id, TaskRequest request) {
-        return null;
+    public TaskTO update(long id, TaskRequest request) {
+        log.info("Updating task {}...", id);
+        Optional<Task> originalTask = this.taskRepository.findById(id);
+        if(originalTask.isPresent()){
+            Task task = this.mapper.merge(originalTask.get(), request);
+            Task updatedTask = this.taskRepository.save(task);
+            log.info("Task {} successfully updated.", id);
+            return this.mapper.map(updatedTask, TaskTO.class);
+        }else{
+            throw new BadRequestException("Task not found.");
+        }
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void deleteTask(String id) {
-
+    public void deleteTask(long id) {
+        log.info("Deleting task {}...", id);
+        if(this.taskRepository.findById(id).isPresent()){
+            this.taskRepository.deleteById(id);
+            log.info("Task {} successfully deleted.", id);
+        }else{
+            throw new BadRequestException("Task not found.");
+        }
     }
 }

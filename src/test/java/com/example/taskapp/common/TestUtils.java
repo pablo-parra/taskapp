@@ -31,6 +31,11 @@ public class TestUtils {
     }
 
     /**
+     * Base Url
+     */
+    public static String BASE_URL = "/api/v1/tasks";
+
+    /**
      * The Constructor
      */
     private TestUtils() {

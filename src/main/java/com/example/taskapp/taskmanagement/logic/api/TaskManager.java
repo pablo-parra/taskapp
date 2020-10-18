@@ -25,7 +25,7 @@ public interface TaskManager {
      * @param id the task ID
      * @return the {@link TaskTO} that matches the provided ID
      */
-    TaskTO getTask(String id);
+    TaskTO getTask(long id);
 
     /**
      * Creates a new task
@@ -42,13 +42,13 @@ public interface TaskManager {
      * @param request the task details to update
      * @return the {@link TaskTO} after the update
      */
-    TaskTO update(String id, TaskRequest request);
+    TaskTO update(long id, TaskRequest request);
 
     /**
      * Deletes a task
      *
      * @param id the task ID
      */
-    void deleteTask(String id);
+    void deleteTask(long id);
 
 }

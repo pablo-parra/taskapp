@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -15,11 +16,20 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Exception Handler
+ * Application Exception Handler
  */
 @ControllerAdvice
 @Slf4j
-public class ExceptionHandler extends ResponseEntityExceptionHandler {
+public class AppExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex) {
+
+        UUID uuid = UUID.randomUUID();
+        ErrorResponse error = new ErrorResponse(ex.getMessage(), uuid);
+        log.error(uuid.toString().concat(" | ").concat(error.getErrorMessage()));
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,

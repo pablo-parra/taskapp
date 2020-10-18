@@ -1,5 +1,6 @@
 package com.example.taskapp.taskmanagement.dataaccess.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ public class TaskRequest {
     private String description;
 
     @FutureOrPresent(message = "'dueDate' can't be in the past")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime dueDate;
 
     private Boolean done;
