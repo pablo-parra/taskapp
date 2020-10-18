@@ -26,5 +26,7 @@ public class SearchCriteria {
 
     private LocalDateTime endRange;
 
-    private boolean done;
+    private LocalDateTime dueDate;
+
+    private Boolean done;
 }

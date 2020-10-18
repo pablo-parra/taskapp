@@ -2,6 +2,7 @@ package com.example.taskapp;
 
 import com.example.taskapp.common.TestUtils;
 import com.example.taskapp.common.exception.ErrorResponse;
+import com.example.taskapp.taskmanagement.dataaccess.dto.SearchCriteria;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskRequest;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskTO;
 import com.example.taskapp.taskmanagement.dataaccess.entity.Task;
@@ -20,8 +21,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
@@ -61,7 +60,7 @@ class TaskappApplicationTests {
 	@Test
 	void findTask_ReturnsExpectedTask() throws Exception {
 		String taskId = "1";
-		MvcResult result = httpGet(TestUtils.BASE_URL.concat("/").concat(taskId), new LinkedMultiValueMap<>()).andExpect(status().isOk()).andReturn();
+		MvcResult result = httpGet(TestUtils.BASE_URL.concat("/").concat(taskId), new SearchCriteria()).andExpect(status().isOk()).andReturn();
 		TaskTO response = this.gson.fromJson(result.getResponse().getContentAsString(), TaskTO.class);
 		Assertions.assertThat(response).isNotNull();
 		Assertions.assertThat(response.getId()).isEqualTo(Long.valueOf(taskId));
@@ -70,9 +69,18 @@ class TaskappApplicationTests {
 	@Test
 	void findTasks_ShouldReturnExpectedList() throws Exception {
 
-		MvcResult result = httpGet(TestUtils.BASE_URL, new LinkedMultiValueMap<>()).andExpect(status().isOk()).andReturn();
+		MvcResult result = httpGet(TestUtils.BASE_URL, new SearchCriteria()).andExpect(status().isOk()).andReturn();
 		List<TaskTO> response = this.gson.fromJson(result.getResponse().getContentAsString(), List.class);
 		Assertions.assertThat(response).size().isEqualTo(5);
+	}
+
+	@Test
+	void filterByStatus_ReturnsExpectedTasks() throws Exception {
+		SearchCriteria criteria = new SearchCriteria();
+		criteria.setDone(true);
+		MvcResult result = httpGet(TestUtils.BASE_URL, criteria).andExpect(status().isOk()).andReturn();
+		List<TaskTO> response = this.gson.fromJson(result.getResponse().getContentAsString(), List.class);
+		Assertions.assertThat(response).size().isEqualTo(2);
 	}
 
 	@Test
@@ -134,6 +142,7 @@ class TaskappApplicationTests {
 		Task originalTask = new Task();
 		originalTask.setTitle("Title version 1");
 		originalTask.setDescription("This is a description");
+		originalTask.setDone(false);
 		Task createdTask = this.taskRepository.save(originalTask);
 
 		TaskRequest taskToUpdate = new TaskRequest();
@@ -145,13 +154,14 @@ class TaskappApplicationTests {
 		Assertions.assertThat(response.getTitle()).isEqualTo("Title version 2");
 		Assertions.assertThat(response.getDescription()).isEqualTo("This is a description");
 		Assertions.assertThat(response.isDone()).isTrue();
+		Assertions.assertThat(response.getCompletionDate()).isNotNull();
 
 		cleanUpDB(createdTask.getId());
 	}
 
-	private ResultActions httpGet(String url, MultiValueMap<String, String> params) throws Exception {
+	private ResultActions httpGet(String url, SearchCriteria criteria) throws Exception {
 		return this.mvc.perform(get(url).header("Accept", "application/json").header("Content-Type", "application/json")
-				/*.header("authorization", this.AUTH_TOKEN)*/.params(params));
+				/*.header("authorization", this.AUTH_TOKEN)*/.content(this.gson.toJson(criteria)));
 	}
 
 	private ResultActions httpPost(String url, TaskRequest request) throws Exception {

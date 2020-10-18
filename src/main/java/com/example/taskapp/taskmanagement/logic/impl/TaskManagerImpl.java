@@ -10,6 +10,8 @@ import com.example.taskapp.taskmanagement.dataaccess.repository.TaskRepository;
 import com.example.taskapp.taskmanagement.logic.api.TaskManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -36,7 +38,8 @@ public class TaskManagerImpl implements TaskManager {
     @Override
     public List<TaskTO> getTaskList(SearchCriteria criteria) {
         log.info("Searching tasks...");
-        List<Task> taskList = taskRepository.findAll();
+        Example<Task> filter = Example.of(this.mapper.toTaskByUserFilter(criteria));
+        List<Task> taskList = this.taskRepository.findAll(filter, Sort.by("dueDate").ascending());
         log.info("{} tasks found", taskList.size());
         return this.mapper.mapList(taskList);
     }

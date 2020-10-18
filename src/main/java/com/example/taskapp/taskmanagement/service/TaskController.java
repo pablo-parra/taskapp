@@ -32,7 +32,7 @@ public class TaskController {
      * @return the tasks that matches the criteria
      */
     @GetMapping
-    public ResponseEntity<Object> searchTasks(SearchCriteria criteria) {
+    public ResponseEntity<Object> searchTasks(@RequestBody SearchCriteria criteria) {
         log.info("Request to [SEARCH] service with criteria: {}", criteria.toString());
         return ResponseEntity.ok().body(this.taskManager.getTaskList(criteria));
     }

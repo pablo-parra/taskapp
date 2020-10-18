@@ -1,5 +1,6 @@
 package com.example.taskapp.common.mapper;
 
+import com.example.taskapp.taskmanagement.dataaccess.dto.SearchCriteria;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskRequest;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskTO;
 import com.example.taskapp.taskmanagement.dataaccess.entity.Task;
@@ -8,6 +9,7 @@ import org.modelmapper.TypeToken;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Type;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -62,22 +64,37 @@ public class Mapper {
      */
     public Task merge(Task task, TaskRequest request) {
 
-        if(null != request.getTitle()){
+        if (null != request.getTitle()) {
             task.setTitle(request.getTitle());
         }
 
-        if(null != request.getDescription()){
+        if (null != request.getDescription()) {
             task.setDescription(request.getDescription());
         }
 
-        if(null != request.getDueDate()){
+        if (null != request.getDueDate()) {
             task.setDueDate(request.getDueDate());
         }
 
-        if(null != request.getDone()){
+        if (null != request.getDone()
+                && request.getDone().equals(Boolean.TRUE)
+                && null != task.getDone()
+                && task.getDone().equals(Boolean.FALSE)) {
             task.setDone(request.getDone());
+            task.setCompletionDate(LocalDateTime.now());
         }
 
         return task;
+    }
+
+    public Task toTaskByUserFilter(SearchCriteria criteria){
+        Task task = this.map(criteria, Task.class);
+        task.setUserId(getUserId());
+        return task;
+    }
+
+    private Long getUserId(){
+        //TODO implement real SecurityContextHolder
+        return 1L;
     }
 }

@@ -31,7 +31,7 @@ public class Task {
 
     private LocalDateTime dueDate;
 
-    private boolean done;
+    private Boolean done;
 
     private LocalDateTime completionDate;
 

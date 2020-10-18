@@ -6,5 +6,6 @@ CREATE TABLE IF NOT EXISTS task (
     dueDate TIMESTAMP,
     done BOOLEAN,
     completionDate TIMESTAMP,
-    userId BIGINT
+    userId BIGINT,
+    PRIMARY KEY(id)
 );
