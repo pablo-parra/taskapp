@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Slf4j
-class TaskappApplicationTests {
+class TaskappIntegrationTests {
 
 	@Autowired
 	private WebApplicationContext context;

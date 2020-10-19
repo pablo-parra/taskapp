@@ -1,6 +1,7 @@
 package com.example.taskapp.taskmanagement.logic.impl;
 
 import com.example.taskapp.common.exception.BadRequestException;
+import com.example.taskapp.common.exception.UnauthorizedException;
 import com.example.taskapp.common.mapper.Mapper;
 import com.example.taskapp.taskmanagement.dataaccess.dto.SearchCriteria;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskRequest;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -51,7 +53,12 @@ public class TaskManagerImpl implements TaskManager {
     public TaskTO getTask(long id) {
         log.info("Getting details of task {}", id);
         Optional<Task> task = this.taskRepository.findById(id);
-        return task.isPresent() ? this.mapper.map(task.get(), TaskTO.class) : new TaskTO();
+        if (task.isPresent()) {
+            belongsToUser(task.get());
+            return this.mapper.map(task.get(), TaskTO.class);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -64,7 +71,7 @@ public class TaskManagerImpl implements TaskManager {
         Task task = this.mapper.map(request, Task.class);
         task.setDone(false);
         task.setCreationDate(LocalDateTime.now());
-        task.setUserId(1L);
+        task.setUserName(SecurityContextHolder.getContext().getAuthentication().getName());
 
         Task createdTask = this.taskRepository.save(task);
         log.info("Task successfully created");
@@ -78,12 +85,13 @@ public class TaskManagerImpl implements TaskManager {
     public TaskTO update(long id, TaskRequest request) {
         log.info("Updating task {}...", id);
         Optional<Task> originalTask = this.taskRepository.findById(id);
-        if(originalTask.isPresent()){
+        if (originalTask.isPresent()) {
+            belongsToUser(originalTask.get());
             Task task = this.mapper.merge(originalTask.get(), request);
             Task updatedTask = this.taskRepository.save(task);
             log.info("Task {} successfully updated.", id);
             return this.mapper.map(updatedTask, TaskTO.class);
-        }else{
+        } else {
             throw new BadRequestException("Task not found.");
         }
     }
@@ -94,11 +102,23 @@ public class TaskManagerImpl implements TaskManager {
     @Override
     public void deleteTask(long id) {
         log.info("Deleting task {}...", id);
-        if(this.taskRepository.findById(id).isPresent()){
+        Optional<Task> task = this.taskRepository.findById(id);
+        if (task.isPresent()) {
+            belongsToUser(task.get());
             this.taskRepository.deleteById(id);
             log.info("Task {} successfully deleted.", id);
-        }else{
+        } else {
             throw new BadRequestException("Task not found.");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void belongsToUser(Task task) {
+        if (!task.getUserName().equals(SecurityContextHolder.getContext().getAuthentication().getName())) {
+            throw new UnauthorizedException("No permissions over task ".concat(String.valueOf(task.getId())));
         }
     }
 }

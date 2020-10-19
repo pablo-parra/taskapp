@@ -6,6 +6,7 @@ import com.example.taskapp.taskmanagement.dataaccess.dto.TaskTO;
 import com.example.taskapp.taskmanagement.dataaccess.entity.Task;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Type;
@@ -20,7 +21,7 @@ public class Mapper {
 
     private ModelMapper mapper = new ModelMapper();
 
-    Type taskListType = new TypeToken<List<Task>>() {
+    Type taskListType = new TypeToken<List<TaskTO>>() {
     }.getType();
 
     /**
@@ -89,12 +90,7 @@ public class Mapper {
 
     public Task toTaskByUserFilter(SearchCriteria criteria){
         Task task = this.map(criteria, Task.class);
-        task.setUserId(getUserId());
+        task.setUserName(SecurityContextHolder.getContext().getAuthentication().getName());
         return task;
-    }
-
-    private Long getUserId(){
-        //TODO implement real SecurityContextHolder
-        return 1L;
     }
 }

@@ -3,6 +3,7 @@ package com.example.taskapp.taskmanagement.logic.api;
 import com.example.taskapp.taskmanagement.dataaccess.dto.SearchCriteria;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskRequest;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskTO;
+import com.example.taskapp.taskmanagement.dataaccess.entity.Task;
 
 import java.util.List;
 
@@ -51,4 +52,10 @@ public interface TaskManager {
      */
     void deleteTask(long id);
 
+    /**
+     * Checks if a {@link Task} belongs to the user
+     *
+     * @param task the task
+     */
+    void belongsToUser(Task task);
 }

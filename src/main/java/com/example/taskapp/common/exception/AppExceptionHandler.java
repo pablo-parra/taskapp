@@ -31,6 +31,15 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ErrorResponse> handleBoomUnauthorizedException(UnauthorizedException ex) {
+
+        UUID uuid = UUID.randomUUID();
+        ErrorResponse error = new ErrorResponse(ex.getMessage(), uuid);
+        log.info(uuid.toString().concat(" | ").concat(error.getErrorMessage()));
+        return new ResponseEntity(error, HttpStatus.UNAUTHORIZED);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
                                                                   HttpHeaders headers,

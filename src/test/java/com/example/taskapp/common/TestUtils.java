@@ -21,12 +21,12 @@ public class TestUtils {
     }
 
     /**
-     * Creates a success message for the test
+     * Creates a message for the test end
      */
-    public static void testSuccess() {
+    public static void testEnd() {
 
         log.info("------------------------------------------------------------------------------");
-        log.info("------------------------------------------------------------------ TEST PASSED");
+        log.info("---------------------------------------------------------------- TEST FINISHED");
         log.info("------------------------------------------------------------------------------\n\n\n");
     }
 
@@ -34,6 +34,11 @@ public class TestUtils {
      * Base Url
      */
     public static String BASE_URL = "/api/v1/tasks";
+
+    /**
+     * Authenticate Url
+     */
+    public static String AUTHENTICATE_URL = "/api/authenticate";
 
     /**
      * The Constructor

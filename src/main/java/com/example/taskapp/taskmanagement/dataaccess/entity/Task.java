@@ -35,5 +35,5 @@ public class Task {
 
     private LocalDateTime completionDate;
 
-    private Long userId;
+    private String userName;
 }

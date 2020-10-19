@@ -1,5 +1,8 @@
 package com.example.taskapp.common.exception;
 
+/**
+ * Bad Request Exception
+ */
 public class BadRequestException extends RuntimeException {
 
     /**
