@@ -1,5 +1,6 @@
 package com.example.taskapp;
 
+import com.example.taskapp.authmanagement.utils.JwtUtils;
 import com.example.taskapp.common.TestUtils;
 import com.example.taskapp.common.exception.ErrorResponse;
 import com.example.taskapp.taskmanagement.dataaccess.dto.SearchCriteria;
@@ -10,26 +11,38 @@ import com.example.taskapp.taskmanagement.dataaccess.repository.TaskRepository;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Slf4j
 class TaskappApplicationTests {
 
 	@Autowired
@@ -40,8 +53,17 @@ class TaskappApplicationTests {
 	private final Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class,
 			(JsonDeserializer<LocalDateTime>) (json, type, jsonDeserializationContext) -> LocalDateTime.parse(json.getAsString())).create();
 
+	private String AUTH_TOKEN;
+
 	@Autowired
 	private TaskRepository taskRepository;
+
+	@BeforeAll
+	void setUpAuthentication() throws Exception {
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
+				/* .addFilters(this.springSecurityFilterChain) */.build();
+		this.AUTH_TOKEN = getAuthorizationToken();
+	}
 
 	@BeforeEach
 	void beforeEach(TestInfo testInfo) {
@@ -54,10 +76,11 @@ class TaskappApplicationTests {
 
 	@AfterEach
 	void afterEach() {
-		TestUtils.testSuccess();
+		TestUtils.testEnd();
 	}
 
 	@Test
+	@WithMockUser("john")
 	void findTask_ReturnsExpectedTask() throws Exception {
 		String taskId = "1";
 		MvcResult result = httpGet(TestUtils.BASE_URL.concat("/").concat(taskId), new SearchCriteria()).andExpect(status().isOk()).andReturn();
@@ -67,6 +90,7 @@ class TaskappApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("john")
 	void findTasks_ShouldReturnExpectedList() throws Exception {
 
 		MvcResult result = httpGet(TestUtils.BASE_URL, new SearchCriteria()).andExpect(status().isOk()).andReturn();
@@ -75,6 +99,7 @@ class TaskappApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("john")
 	void filterByStatus_ReturnsExpectedTasks() throws Exception {
 		SearchCriteria criteria = new SearchCriteria();
 		criteria.setDone(true);
@@ -84,9 +109,9 @@ class TaskappApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("john")
 	void createTask_CreatesExpectedTask() throws Exception {
 		List<Task> tasksBefore = this.taskRepository.findAll();
-		Assertions.assertThat(tasksBefore).size().isEqualTo(5);
 
 		String newTaskTitle = "this is my new task";
 		TaskRequest request = new TaskRequest();
@@ -103,6 +128,7 @@ class TaskappApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("john")
 	void createTaskWithoutTitle_ThrowsExpectedException() throws Exception {
 		MvcResult result = httpPost(TestUtils.BASE_URL, new TaskRequest()).andExpect(status().isBadRequest()).andReturn();
 		ErrorResponse response = this.gson.fromJson(result.getResponse().getContentAsString(), ErrorResponse.class);
@@ -110,9 +136,11 @@ class TaskappApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("john")
 	void deleteTask_DeletesExpectedTask() throws Exception {
 		Task task = new Task();
 		task.setTitle("hello world");
+		task.setUserName(SecurityContextHolder.getContext().getAuthentication().getName());
 
 		Task createdTask = this.taskRepository.save(task);
 		List<Task> tasksBeforeDelete = this.taskRepository.findAll();
@@ -126,11 +154,13 @@ class TaskappApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("john")
 	void deleteTaskWrongId_ThrowsExpectedException() throws Exception {
 		httpDelete(TestUtils.BASE_URL, "not-a-number").andExpect(status().isBadRequest()).andReturn();
 	}
 
 	@Test
+	@WithMockUser("john")
 	void deleteNonExistingTask_ThrowsExpectedException() throws Exception {
 		MvcResult result = httpDelete(TestUtils.BASE_URL, "999999").andExpect(status().isBadRequest()).andReturn();
 		ErrorResponse response = this.gson.fromJson(result.getResponse().getContentAsString(), ErrorResponse.class);
@@ -138,11 +168,14 @@ class TaskappApplicationTests {
 	}
 
 	@Test
+	@WithMockUser("john")
 	void updateTask_UpdatesTheTaskData() throws Exception {
 		Task originalTask = new Task();
 		originalTask.setTitle("Title version 1");
 		originalTask.setDescription("This is a description");
 		originalTask.setDone(false);
+		originalTask.setUserName(SecurityContextHolder.getContext().getAuthentication().getName());
+
 		Task createdTask = this.taskRepository.save(originalTask);
 
 		TaskRequest taskToUpdate = new TaskRequest();
@@ -161,22 +194,31 @@ class TaskappApplicationTests {
 
 	private ResultActions httpGet(String url, SearchCriteria criteria) throws Exception {
 		return this.mvc.perform(get(url).header("Accept", "application/json").header("Content-Type", "application/json")
-				/*.header("authorization", this.AUTH_TOKEN)*/.content(this.gson.toJson(criteria)));
+				.header(HttpHeaders.AUTHORIZATION, this.AUTH_TOKEN).content(this.gson.toJson(criteria)));
 	}
 
 	private ResultActions httpPost(String url, TaskRequest request) throws Exception {
 		return this.mvc.perform(post(url).header("Accept", "application/json").header("Content-Type", "application/json")
-				/*.header("authorization", this.AUTH_TOKEN)*/.content(this.gson.toJson(request)));
+				.header(HttpHeaders.AUTHORIZATION, this.AUTH_TOKEN).content(this.gson.toJson(request)));
 	}
 
 	private ResultActions httpPut(String url, String id, TaskRequest request) throws Exception {
 		return this.mvc.perform(put(url.concat("/").concat(id)).header("Accept", "application/json").header("Content-Type", "application/json")
-				/*.header("authorization", this.AUTH_TOKEN)*/.content(this.gson.toJson(request)));
+				.header(HttpHeaders.AUTHORIZATION, this.AUTH_TOKEN).content(this.gson.toJson(request)));
 	}
 
 	private ResultActions httpDelete(String url, String id) throws Exception {
 		return this.mvc.perform(delete(url.concat("/").concat(id)).header("Accept", "application/json").header("Content-Type", "application/json")
-				/*.header("authorization", this.AUTH_TOKEN)*/);
+				.header(HttpHeaders.AUTHORIZATION, this.AUTH_TOKEN));
+	}
+
+	private String getAuthorizationToken() throws Exception {
+		try (Reader reader = new InputStreamReader(JwtUtils.loadKey().getInputStream())) {
+			return JwtUtils.createToken(new HashMap<>(), "john", reader);
+		} catch (Exception ex) {
+			log.error("Something went wrong while creating the JWT token: {}", ex.getMessage());
+			throw new BadCredentialsException("Token not valid");
+		}
 	}
 
 	private void cleanUpDB(long... ids){
