@@ -29,4 +29,8 @@ public class SearchCriteria {
     private LocalDateTime dueDate;
 
     private Boolean done;
+
+    private Integer page;
+
+    private Integer pageSize;
 }

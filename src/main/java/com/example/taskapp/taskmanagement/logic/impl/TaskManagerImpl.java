@@ -5,19 +5,23 @@ import com.example.taskapp.common.exception.UnauthorizedException;
 import com.example.taskapp.common.mapper.Mapper;
 import com.example.taskapp.taskmanagement.dataaccess.dto.SearchCriteria;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskRequest;
+import com.example.taskapp.taskmanagement.dataaccess.dto.TaskResponse;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskTO;
 import com.example.taskapp.taskmanagement.dataaccess.entity.Task;
 import com.example.taskapp.taskmanagement.dataaccess.repository.TaskRepository;
 import com.example.taskapp.taskmanagement.logic.api.TaskManager;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -33,17 +37,26 @@ public class TaskManagerImpl implements TaskManager {
     @Autowired
     private Mapper mapper;
 
+    @Value("${taskapp.page.default}")
+    private int defaultPage;
+
+    @Value("${taskapp.page-size.default}")
+    private int defaultPageSize;
+
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<TaskTO> getTaskList(SearchCriteria criteria) {
+    public TaskResponse getTaskList(SearchCriteria criteria) {
         log.info("Searching tasks...");
         Example<Task> filter = Example.of(this.mapper.toTaskByUserFilter(criteria));
-        List<Task> taskList = this.taskRepository.findAll(filter, Sort.by("dueDate").ascending());
-        log.info("{} tasks found", taskList.size());
-        return this.mapper.mapList(taskList);
+        int page = null != criteria.getPage() ? criteria.getPage() : this.defaultPage;
+        int pageSize = null != criteria.getPageSize() ? criteria.getPageSize() : this.defaultPageSize;
+        Pageable paging = PageRequest.of(page, pageSize, Sort.by("dueDate").ascending());
+        Page<Task> taskList = this.taskRepository.findAll(filter, paging);
+        log.info("{} tasks found", taskList.getContent().size());
+        return new TaskResponse(this.mapper.mapList(taskList.getContent()), page, pageSize, taskList.getTotalElements(), taskList.getTotalPages());
     }
 
     /**

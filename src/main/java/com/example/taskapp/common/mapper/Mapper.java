@@ -19,7 +19,7 @@ import java.util.List;
 @Component
 public class Mapper {
 
-    private ModelMapper mapper = new ModelMapper();
+    private ModelMapper modelMapper = new ModelMapper();
 
     Type taskListType = new TypeToken<List<TaskTO>>() {
     }.getType();
@@ -30,7 +30,7 @@ public class Mapper {
      * @return mapper
      */
     public ModelMapper mapper() {
-        return this.mapper;
+        return this.modelMapper;
     }
 
     /**
@@ -43,7 +43,7 @@ public class Mapper {
      * @return mapped object
      */
     public <S, T> T map(S source, Class<T> targetClass) {
-        return this.mapper.map(source, targetClass);
+        return this.modelMapper.map(source, targetClass);
     }
 
     /**
@@ -53,7 +53,7 @@ public class Mapper {
      * @return list of {@link TaskTO}
      */
     public List<TaskTO> mapList(List<Task> taskList) {
-        return this.mapper.map(taskList, taskListType);
+        return this.modelMapper.map(taskList, taskListType);
     }
 
     /**

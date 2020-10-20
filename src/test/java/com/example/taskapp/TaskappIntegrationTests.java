@@ -5,6 +5,7 @@ import com.example.taskapp.common.TestUtils;
 import com.example.taskapp.common.exception.ErrorResponse;
 import com.example.taskapp.taskmanagement.dataaccess.dto.SearchCriteria;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskRequest;
+import com.example.taskapp.taskmanagement.dataaccess.dto.TaskResponse;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskTO;
 import com.example.taskapp.taskmanagement.dataaccess.entity.Task;
 import com.example.taskapp.taskmanagement.dataaccess.repository.TaskRepository;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -58,6 +60,12 @@ class TaskappIntegrationTests {
 	@Autowired
 	private TaskRepository taskRepository;
 
+	@Value("${taskapp.page.default}")
+	private int defaultPage;
+
+	@Value("${taskapp.page-size.default}")
+	private int defaultPageSize;
+
 	@BeforeAll
 	void setUpAuthentication() throws Exception {
 		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
@@ -94,8 +102,29 @@ class TaskappIntegrationTests {
 	void findTasks_ShouldReturnExpectedList() throws Exception {
 
 		MvcResult result = httpGet(TestUtils.BASE_URL, new SearchCriteria()).andExpect(status().isOk()).andReturn();
-		List<TaskTO> response = this.gson.fromJson(result.getResponse().getContentAsString(), List.class);
-		Assertions.assertThat(response).size().isEqualTo(5);
+		TaskResponse response = this.gson.fromJson(result.getResponse().getContentAsString(), TaskResponse.class);
+		Assertions.assertThat(response.getTasks()).size().isEqualTo(5);
+		Assertions.assertThat(response.getPagination()).isNotNull();
+		Assertions.assertThat(response.getPagination().getPage()).isEqualTo(this.defaultPage);
+		Assertions.assertThat(response.getPagination().getPageSize()).isEqualTo(this.defaultPageSize);
+		Assertions.assertThat(response.getPagination().getTotalItems()).isEqualTo(5);
+		Assertions.assertThat(response.getPagination().getTotalPages()).isEqualTo(1);
+	}
+
+	@Test
+	@WithMockUser("john")
+	void findTasksWithPagination_ShouldReturnExpectedList() throws Exception {
+		SearchCriteria criteria = new SearchCriteria();
+		criteria.setPage(1);
+		criteria.setPageSize(3);
+		MvcResult result = httpGet(TestUtils.BASE_URL, criteria).andExpect(status().isOk()).andReturn();
+		TaskResponse response = this.gson.fromJson(result.getResponse().getContentAsString(), TaskResponse.class);
+		Assertions.assertThat(response.getTasks()).size().isEqualTo(2);
+		Assertions.assertThat(response.getPagination()).isNotNull();
+		Assertions.assertThat(response.getPagination().getPage()).isEqualTo(1);
+		Assertions.assertThat(response.getPagination().getPageSize()).isEqualTo(3);
+		Assertions.assertThat(response.getPagination().getTotalItems()).isEqualTo(5);
+		Assertions.assertThat(response.getPagination().getTotalPages()).isEqualTo(2);
 	}
 
 	@Test
@@ -104,8 +133,8 @@ class TaskappIntegrationTests {
 		SearchCriteria criteria = new SearchCriteria();
 		criteria.setDone(true);
 		MvcResult result = httpGet(TestUtils.BASE_URL, criteria).andExpect(status().isOk()).andReturn();
-		List<TaskTO> response = this.gson.fromJson(result.getResponse().getContentAsString(), List.class);
-		Assertions.assertThat(response).size().isEqualTo(2);
+		TaskResponse response = this.gson.fromJson(result.getResponse().getContentAsString(), TaskResponse.class);
+		Assertions.assertThat(response.getTasks()).size().isEqualTo(2);
 	}
 
 	@Test

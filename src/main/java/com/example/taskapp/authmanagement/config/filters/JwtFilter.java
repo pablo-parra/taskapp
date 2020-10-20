@@ -1,8 +1,10 @@
 package com.example.taskapp.authmanagement.config.filters;
 
+import com.example.taskapp.authmanagement.config.authentication.Credentials;
 import com.example.taskapp.authmanagement.config.constants.SecurityConstants;
 import com.example.taskapp.authmanagement.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,9 +33,8 @@ public class JwtFilter extends UsernamePasswordAuthenticationFilter{
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        var username = request.getHeader("username");
-        var password = request.getHeader("password");
-        var authenticationToken = new UsernamePasswordAuthenticationToken(username, password, new ArrayList<>());
+        var credentials = new Credentials(request.getHeader(HttpHeaders.AUTHORIZATION));
+        var authenticationToken = new UsernamePasswordAuthenticationToken(credentials.getName(), credentials.getPassword(), new ArrayList<>());
         return authenticationManager.authenticate(authenticationToken);
     }
 

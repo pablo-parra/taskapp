@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest(classes = {TaskManagerImpl.class, Mapper.class})
 @ExtendWith(MockitoExtension.class)
-public class TaskUnitTests {
+class TaskUnitTests {
 
     @Autowired
     private TaskManager taskManager;
@@ -61,7 +61,8 @@ public class TaskUnitTests {
                 .when(this.taskRepositoryMock)
                 .findById(Mockito.anyLong());
 
-        BadRequestException expected = assertThrows(BadRequestException.class, () -> this.taskManager.update(999, new TaskRequest()));
+        TaskRequest taskRequest = new TaskRequest();
+        BadRequestException expected = assertThrows(BadRequestException.class, () -> this.taskManager.update(999, taskRequest));
         Assertions.assertThat(expected.getMessage()).isEqualTo("Task not found.");
     }
 

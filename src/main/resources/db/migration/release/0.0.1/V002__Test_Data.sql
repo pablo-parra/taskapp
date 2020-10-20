@@ -3,8 +3,3 @@ INSERT INTO task (id, title, description, creationDate, dueDate, done, completio
 INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userName) VALUES (3, 'some task 3', 'example of description', '2020-10-15 15:22:33', '2020-10-15 15:22:33', false, null, 'john');
 INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userName) VALUES (4, 'some task 4', 'description', '2020-10-16 16:22:33', null, false, null, 'john');
 INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userName) VALUES (5, 'some task 5', 'example of description', '2020-10-17 17:22:33', '2020-10-17 17:22:33', false, null, 'john');
-
-INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userName) VALUES (6, 'some task 6', 'example of description', '2020-10-06 17:22:33', '2020-10-10 17:22:33', true, null, 'susan');
-INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userName) VALUES (7, 'some task 7', 'example of description', '2020-10-07 17:22:33', null, false, null, 'susan');
-INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userName) VALUES (8, 'some task 8', 'example of description', '2020-10-08 17:22:33', '2020-10-15 17:22:33', true, '2020-10-15 17:22:33', 'susan');
-INSERT INTO task (id, title, description, creationDate, dueDate, done, completionDate, userName) VALUES (9, 'some task 9', 'example of description', '2020-10-09 17:22:33', '2020-10-20 17:22:33', false, null, 'susan');

@@ -37,7 +37,7 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
         UUID uuid = UUID.randomUUID();
         ErrorResponse error = new ErrorResponse(ex.getMessage(), uuid);
         log.info(uuid.toString().concat(" | ").concat(error.getErrorMessage()));
-        return new ResponseEntity(error, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
     @Override

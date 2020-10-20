@@ -1,11 +1,11 @@
 package com.example.taskapp.taskmanagement.logic.api;
 
+import com.example.taskapp.taskmanagement.dataaccess.dto.Pagination;
 import com.example.taskapp.taskmanagement.dataaccess.dto.SearchCriteria;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskRequest;
+import com.example.taskapp.taskmanagement.dataaccess.dto.TaskResponse;
 import com.example.taskapp.taskmanagement.dataaccess.dto.TaskTO;
 import com.example.taskapp.taskmanagement.dataaccess.entity.Task;
-
-import java.util.List;
 
 /**
  * Task management functionality definition
@@ -16,9 +16,9 @@ public interface TaskManager {
      * Returns a list of tasks based on a search criteria
      *
      * @param criteria the search criteria
-     * @return the list of {@link TaskTO}s that match the criteria
+     * @return the list of {@link TaskTO}s that match the criteria with {@link Pagination} in a {@link TaskResponse}
      */
-    List<TaskTO> getTaskList(SearchCriteria criteria);
+    TaskResponse getTaskList(SearchCriteria criteria);
 
     /**
      * Returns the {@link TaskTO} by ID

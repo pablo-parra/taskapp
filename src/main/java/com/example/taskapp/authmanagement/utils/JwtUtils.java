@@ -44,4 +44,9 @@ public class JwtUtils {
     public static Resource loadKey(){
         return new ClassPathResource(SecurityConstants.TOKEN_KEY_LOCATION);
     }
+
+    /**
+     * Constructor
+     */
+    private JwtUtils(){}
 }
