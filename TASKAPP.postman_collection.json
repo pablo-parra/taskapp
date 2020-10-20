@@ -1,0 +1,313 @@
+{
+	"info": {
+		"_postman_id": "559f4d66-28f1-4efd-84bd-b8a4994cd531",
+		"name": "TASKAPP",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "AUTH",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "e7df2cf2-b26f-4aab-b0e1-9b45af7c8805",
+						"exec": [
+							"var taskAppAuth = pm.response.headers.get(\"Authorization\");\r",
+							"pm.environment.set(\"taskAppToken\", taskAppAuth);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "john",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "1234",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "username",
+						"value": "john",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "password",
+						"value": "1234",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/taskapp/api/authenticate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"taskapp",
+						"api",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "LIST",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{taskAppToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "eyJhbGciOiJSUzI1NiJ9.eyJzdWIiOiJzdXNhbiIsImlzcyI6IlRhc2tBcHAiLCJleHAiOjE2MDMxMjM4MjcsImlhdCI6MTYwMzEyMDIyN30.ILuPaM3jw_Cxtj1YAIwDR5bEr8fVhSb5NWEBoUc2myUBcQ-kdskKhd0YzU7RAbXSQb1ZNlw2nHAwHLHenPR85cQv13f2g-xsY_EvC-t1qNmHqYfmIptNOTeEst1X7R9Jxd7-rCGONf2Hgx9Np7TnSY7aUqme58N_T_hkMACk-p4G2k8OkV5w4VCZ7QJnfOdHcSUye-kh4Aec2bNb8y-Ctea06CCmrMglsxAziSEMTGG8iQDENiD4IF3zIoxQ0yGUcNTfONZw202GKcvL27yskrfHBi5m-E8s33EdZqddiWtqpLnvCbn0h8Tr_fDBW8pOLiPxQDfgTDo23tfyolwx8g",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"page\": 0,\r\n    \"pageSize\": 50\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/taskapp/api/v1/tasks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"taskapp",
+						"api",
+						"v1",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "By ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{taskAppToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/taskapp/api/v1/tasks/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"taskapp",
+						"api",
+						"v1",
+						"tasks",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CREATE",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{taskAppToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"do something 4\",\r\n    \"description\": \"bla bla bla\",\r\n    \"dueDate\": \"2020-10-25T14:45\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/taskapp/api/v1/tasks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"taskapp",
+						"api",
+						"v1",
+						"tasks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{taskAppToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"title\": \"THIS IS A NEW TITLE\",\r\n    \"description\": \"bla bla bla\",\r\n    \"dueDate\": \"2020-10-25T17:45\",\r\n    \"done\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/taskapp/api/v1/tasks/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"taskapp",
+						"api",
+						"v1",
+						"tasks",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "18"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE MARK AS DONE",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{taskAppToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"done\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/taskapp/api/v1/tasks/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"taskapp",
+						"api",
+						"v1",
+						"tasks",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "18"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE",
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{taskAppToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8080/taskapp/api/v1/tasks/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"taskapp",
+						"api",
+						"v1",
+						"tasks",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
